@@ -21,7 +21,7 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
     {
         parent::register($app);
 
-        $app['quartzguard.must_be_authenticated'] = $app->protect(function(\Symfony\Component\HttpFoundation\Request $request) use (&$app)
+        $app['guard.must_be_authenticated'] = $app->protect(function(\Symfony\Component\HttpFoundation\Request $request) use (&$app)
                 {
                     if (!$app['session']->isAuthenticated())
                     {
