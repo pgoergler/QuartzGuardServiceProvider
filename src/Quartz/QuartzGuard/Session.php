@@ -1,6 +1,6 @@
 <?php
 
-namespace Ongoo\Pear\PearGuard;
+namespace Quartz\QuartzGuard;
 
 use Symfony\Component\HttpFoundation\Session\Session AS SfSession;
 
@@ -12,25 +12,25 @@ use Symfony\Component\HttpFoundation\Session\Session AS SfSession;
 class Session extends SfSession
 {
 
-    protected $pear_guard_user = null;
-    protected $pear_guard_user_classname = null;
-    protected $pear = null;
+    protected $quartz_guard_user = null;
+    protected $quartz_guard_user_classname = null;
+    protected $orm = null;
 
     /**
      * __construct
      *
      * @see \Symfony\Component\HttpFoundation\Session\Session
      *
-     * @param \Pear\Pear $pear The Pear instance.
+     * @param \Orm\Orm $orm The Orm instance.
      * @param \Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface $storage
      * @param \Symfony\Component\HttpFoundation\Session\Storage\AttributeBagInterface   $attributes
      * @param \Symfony\Component\HttpFoundation\Session\Storage\FlashBagInterface       $flashes
      * */
-    public function __construct(\Pear\Pear $pear, $pear_guard_user_classname, \Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface $storage = null, \Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface $attributes = null, \Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface $flashes = null)
+    public function __construct(\Quartz\Quartz $orm, $quartz_guard_user_classname, \Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface $storage = null, \Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface $attributes = null, \Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface $flashes = null)
     {
         parent::__construct($storage, $attributes, $flashes);
-        $this->pear = $pear;
-        $this->pear_guard_user_classname = $pear_guard_user_classname;
+        $this->orm = $orm;
+        $this->quartz_guard_user_classname = $quartz_guard_user_classname;
     }
 
     /**
@@ -38,17 +38,17 @@ class Session extends SfSession
      *
      * Tie a user to the current session.
      * 
-     * @param \Models\PearSecure\SecureUser $user
+     * @param \Models\QuartzSecure\SecureUser $user
      * */
-    public function setGuardUser(\Models\PearSecure\SecureUser $user)
+    public function setGuardUser(\Models\QuartzSecure\SecureUser $user)
     {
-        $this->pear_guard_user = $user;
+        $this->quartz_guard_user = $user;
         $values = array();
         foreach ($user->getTable()->getPrimaryKeys() as $k)
         {
             $values[$k] = $user->get($k);
         }
-        $this->set('pearguard_user', $values);
+        $this->set('quartzguard_user', $values);
     }
 
     /**
@@ -58,7 +58,7 @@ class Session extends SfSession
      * */
     public function removeGuardUser()
     {
-        $this->remove('pearguard_user');
+        $this->remove('quartzguard_user');
     }
 
     /**
@@ -66,22 +66,22 @@ class Session extends SfSession
      *
      * Return the current session's user if any, null otherwise.
      *
-     * @return \Models\PearSecure\SecureUser
+     * @return \Models\OrmSecure\SecureUser
      * */
     public function getGuardUser()
     {
-        if (!$this->has('pearguard_user'))
+        if (!$this->has('quartzguard_user'))
         {
             return null;
         }
 
-        if (is_null($this->pear_guard_user))
+        if (is_null($this->quartz_guard_user))
         {
-            $res = $this->pear->getTable($this->pear_guard_user_classname)->find($this->get('pearguard_user'), null, 1);
-            $this->pear_guard_user = array_shift($res);
+            $res = $this->orm->getTable($this->quartz_guard_user_classname)->find($this->get('quartzguard_user'), null, 1);
+            $this->quartz_guard_user = array_shift($res);
         }
 
-        return $this->pear_guard_user;
+        return $this->quartz_guard_user;
     }
 
     /**
@@ -95,10 +95,10 @@ class Session extends SfSession
     {
         if ($authenticate === true)
         {
-            $this->set('pearguard_is_authenticated', true);
-        } elseif ($this->has('pearguard_is_authenticated'))
+            $this->set('quartzguard_is_authenticated', true);
+        } elseif ($this->has('quartzguard_is_authenticated'))
         {
-            $this->remove('pearguard_is_authenticated');
+            $this->remove('quartzguard_is_authenticated');
         }
     }
 
@@ -112,7 +112,7 @@ class Session extends SfSession
     public function isAuthenticated()
     {
         \Ongoo\Logger\Logging::get()->trace($this->all());
-        return $this->has('pearguard_is_authenticated') && ($this->getGuardUser() != null);
+        return $this->has('quartzguard_is_authenticated') && ($this->getGuardUser() != null);
     }
 
 }
