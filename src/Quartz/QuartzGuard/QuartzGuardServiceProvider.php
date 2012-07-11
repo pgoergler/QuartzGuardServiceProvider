@@ -1,6 +1,6 @@
 <?php
 
-namespace Quartz\QuartzGuardServiceProvider;
+namespace Quartz\QuartzGuard;
 
 use Silex\Application;
 
