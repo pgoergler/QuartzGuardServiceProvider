@@ -38,9 +38,9 @@ class Session extends SfSession
      *
      * Tie a user to the current session.
      * 
-     * @param \Models\QuartzSecure\SecureUser $user
+     * @param \Models\GuardSecure\SecureUser $user
      * */
-    public function setGuardUser(\Models\QuartzSecure\SecureUser $user)
+    public function setGuardUser(\Models\GuardSecure\SecureUser $user)
     {
         $this->quartz_guard_user = $user;
         $values = array();
@@ -66,7 +66,7 @@ class Session extends SfSession
      *
      * Return the current session's user if any, null otherwise.
      *
-     * @return \Models\OrmSecure\SecureUser
+     * @return \Models\GuardSecure\SecureUser
      * */
     public function getGuardUser()
     {
