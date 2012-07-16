@@ -29,7 +29,7 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
                     }
                 });
 
-        if (!$app->offsetExists('pearguard.config.user'))
+        if (!$app->offsetExists('quartzguard.config.user'))
         {
             $app['quartzguard.config.user'] = '\Models\GuardSecure\SecureUser';
         }
