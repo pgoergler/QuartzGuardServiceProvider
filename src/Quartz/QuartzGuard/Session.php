@@ -2,14 +2,12 @@
 
 namespace Quartz\QuartzGuard;
 
-use Symfony\Component\HttpFoundation\Session\Session AS SfSession;
-
 /**
  * Description of Session
  *
  * @author paul
  */
-class Session extends SfSession
+class Session extends \Ongoo\Session\Session
 {
 
     protected $quartz_guard_user = null;
