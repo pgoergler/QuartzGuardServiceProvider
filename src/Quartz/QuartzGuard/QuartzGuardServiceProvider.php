@@ -16,19 +16,19 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
 
     public function boot(Application $app)
     {
-        $app['quartz']->init($app['quartz.databases']); // to init database
+        $app['orm']->init($app['quartz.databases']); // to init database
     }
 
     public function register(Application $app)
     {
         $this->app = $app;
-        
-        
+
+
         if (!isset($app['quartzguard.config.user']) )
         {
-            $app['quartzguard.config.user'] = '\Models\GuardSecure\SecureUser';
+            $app['quartzguard.config.user'] = '\Apps\Secure\Models\SecureUser';
         }
-        
+
         if( !isset($app['session.storage.save_path']) )
         {
             $app['session.storage.save_path'] = __W_ROOT_DIR . '/sessions';
@@ -69,7 +69,7 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
                     {
                         $app['session']->start();
                     }
-                    
+
                     if (!$app['session']->isAuthenticated())
                     {
                         return $app->redirect(url_for('login'));

@@ -35,10 +35,10 @@ class Session extends \Ongoo\Session\Session
      * setGuardUser
      *
      * Tie a user to the current session.
-     * 
-     * @param \Models\GuardSecure\SecureUser $user
+     *
+     * @param \Apps\Secure\Models\SecureUser $user
      * */
-    public function setGuardUser(\Models\GuardSecure\SecureUser $user)
+    public function setGuardUser(\Apps\Secure\Models\SecureUser $user)
     {
         $this->quartz_guard_user = $user;
         $values = array();
@@ -64,7 +64,7 @@ class Session extends \Ongoo\Session\Session
      *
      * Return the current session's user if any, null otherwise.
      *
-     * @return \Models\GuardSecure\SecureUser
+     * @return \Apps\Secure\Models\SecureUser
      * */
     public function getGuardUser()
     {
@@ -109,7 +109,6 @@ class Session extends \Ongoo\Session\Session
      * */
     public function isAuthenticated()
     {
-        \Ongoo\Logger\Logging::get()->trace($this->all());
         return $this->has('quartzguard_is_authenticated') && ($this->getGuardUser() != null);
     }
 
