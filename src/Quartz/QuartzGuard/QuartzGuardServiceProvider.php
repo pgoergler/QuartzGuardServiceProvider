@@ -31,7 +31,7 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
 
         if( !isset($app['session.storage.save_path']) )
         {
-            $app['session.storage.save_path'] = __W_ROOT_DIR . '/sessions';
+            $app['session.storage.save_path'] = './';
         }
 
         $app['session.test'] = false;
