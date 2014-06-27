@@ -2,9 +2,12 @@
 
 namespace Quartz\QuartzGuard;
 
-use Silex\Application;
-use Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Silex\Application,
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler,
+    Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage,
+    Symfony\Component\HttpFoundation\Request,
+    Symfony\Component\HttpFoundation\Response
+;
 
 /**
  * Description of QuartzServiceProvider
@@ -75,6 +78,54 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
                         return $app->redirect(url_for('login'));
                     }
                 });
+                
+        $app['guard.credentialized'] = $app->protect(function() use (&$app){
+            $credentials = func_get_args();
+            return function(\Symfony\Component\HttpFoundation\Request $request) use (&$app, $credentials) {
+                if( !$app->offsetExists('session') )
+                {
+                    $app->abort(401, 'Must be authenticated');
+                }
+                
+                if( !$app['session']->isStarted() )
+                {
+                    $app['session']->start();
+                }
+                
+                if (!$app['session']->isAuthenticated())
+                {
+                    $app->abort(401, 'Must be authenticated');
+                }
+                
+                $user = $app['session']->getGuardUser();
+                if( !$user )
+                {
+                    $app->abort(401, 'Must be authenticated');
+                }
+                
+                if( !$user->hasCredentials($credentials) )
+                {
+                    $app->abort(401, 'Unauthorized');
+                }
+            };
+        });
+        
+        $app['guard.redirect_on'] = $app->protect(function($code, $url) use (&$app){
+            $args = func_get_args();
+            $code = array_shift($args);
+            $url = array_shift($args);
+            
+            return function(Request $request, Response $response) use (&$app, $code, $url, $args) {
+                if( $response->getStatusCode() == $code ) {
+                    if( is_callable($url) )
+                    {
+                        $app['logger']->debug('callable');
+                        return $url($request, $response);
+                    }
+                    return $app->redirect(url_for($url, $args));
+                }
+            };
+        });
     }
 
 }
