@@ -78,6 +78,24 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
                         return $app->redirect(url_for('login'));
                     }
                 });
+
+        $app['guard.only_authenticated'] = $app->protect(function(\Symfony\Component\HttpFoundation\Request $request) use (&$app)
+                {
+                    if( !$app->offsetExists('session') )
+                    {
+                        $app->abort(401, 'Must be authenticated');
+                    }
+                
+                    if( !$app['session']->isStarted() )
+                    {
+                        $app['session']->start();
+                    }
+
+                    if (!$app['session']->isAuthenticated())
+                    {
+                        $app->abort(401, 'Must be authenticated');
+                    }
+                });
                 
         $app['guard.credentialized'] = $app->protect(function() use (&$app){
             $credentials = func_get_args();
