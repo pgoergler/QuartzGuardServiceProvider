@@ -75,7 +75,16 @@ class Session extends \Ongoo\Session\Session
 
         if (is_null($this->quartz_guard_user))
         {
-            $res = $this->orm->getTable($this->quartz_guard_user_classname)->find($this->get('quartzguard_user'), null, 1);
+            $table = $this->orm->getTable($this->quartz_guard_user_classname);
+            $values = $this->get('quartzguard_user', array());
+            $criteria = array();
+            foreach ($table->getPrimaryKeys() as $k)
+            {
+                $criteria[$k] = isset($values[$k]) ? $values[$k] : null;
+            }
+            
+            
+            $res = $table->find($criteria, null, 1);
             $this->quartz_guard_user = array_shift($res);
         }
 
