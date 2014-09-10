@@ -85,7 +85,7 @@ class Session extends \Ongoo\Session\Session
             
             
             $res = $table->find($criteria, null, 1);
-            $this->quartz_guard_user = array_shift($res);
+            $this->quartz_guard_user = $res->current();
         }
 
         return $this->quartz_guard_user;
