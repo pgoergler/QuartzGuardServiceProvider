@@ -123,7 +123,7 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
                 
                 if( !$user->hasCredentials($credentials) )
                 {
-                    $app->abort(401, 'Unauthorized');
+                    $app->abort(403, 'Unauthorized');
                 }
             };
         });
