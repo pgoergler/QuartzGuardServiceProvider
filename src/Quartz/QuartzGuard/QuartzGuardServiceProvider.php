@@ -31,6 +31,11 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
         {
             $app['quartzguard.config.user'] = '\Apps\Secure\Models\SecureUser';
         }
+        
+        if (!isset($app['quartzguard.config.prefix']) )
+        {
+            $app['quartzguard.config.prefix'] = 'auth';
+        }
 
         if( !isset($app['session.storage.save_path']) )
         {
@@ -48,7 +53,7 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
                 }
             }
 
-            return new \Quartz\QuartzGuard\Session($app['orm'], $app['quartzguard.config.user'], $app['session.storage']);
+            return new \Quartz\QuartzGuard\Session($app['orm'], $app['quartzguard.config.user'], $app['session.storage'], null, null, $app['quartzguard.config.prefix']);
         });
 
         $app['session.storage.handler'] = $app->share(function ($app) {

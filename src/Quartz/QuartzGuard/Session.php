@@ -10,6 +10,7 @@ namespace Quartz\QuartzGuard;
 class Session extends \Ongoo\Session\Session
 {
 
+    protected $quartz_guard_prefix = 'auth';
     protected $quartz_guard_user = null;
     protected $quartz_guard_user_classname = null;
     protected $orm = null;
@@ -24,13 +25,19 @@ class Session extends \Ongoo\Session\Session
      * @param \Symfony\Component\HttpFoundation\Session\Storage\AttributeBagInterface   $attributes
      * @param \Symfony\Component\HttpFoundation\Session\Storage\FlashBagInterface       $flashes
      * */
-    public function __construct(\Quartz\Quartz $orm, $quartz_guard_user_classname, \Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface $storage = null, \Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface $attributes = null, \Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface $flashes = null)
+    public function __construct(\Quartz\Quartz $orm, $quartz_guard_user_classname, \Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface $storage = null, \Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface $attributes = null, \Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface $flashes = null, $prefix = 'auth')
     {
         parent::__construct($storage, $attributes, $flashes);
         $this->orm = $orm;
         $this->quartz_guard_user_classname = $quartz_guard_user_classname;
+        $this->quartz_guard_prefix = $prefix;
     }
 
+    public function getTokenName()
+    {
+        return sprintf("quartzguard_token_%s", $this->quartz_guard_prefix );
+    }
+    
     /**
      * setGuardUser
      *
@@ -41,12 +48,7 @@ class Session extends \Ongoo\Session\Session
     public function setGuardUser(\Apps\Secure\Models\SecureUser $user)
     {
         $this->quartz_guard_user = $user;
-        $values = array();
-        foreach ($user->getTable()->getPrimaryKeys() as $k)
-        {
-            $values[$k] = $user->get($k);
-        }
-        $this->set('quartzguard_user', $values);
+        $this->set($this->getTokenName(), $user->getExtraVar('token', null));
     }
 
     /**
@@ -56,7 +58,7 @@ class Session extends \Ongoo\Session\Session
      * */
     public function removeGuardUser()
     {
-        $this->remove('quartzguard_user');
+        $this->remove($this->getTokenName());
     }
 
     /**
@@ -68,22 +70,19 @@ class Session extends \Ongoo\Session\Session
      * */
     public function getGuardUser()
     {
-        if (!$this->has('quartzguard_user'))
+        if (!$this->has($this->getTokenName()))
         {
             return null;
         }
-
+        
         if (is_null($this->quartz_guard_user))
         {
             $table = $this->orm->getTable($this->quartz_guard_user_classname);
-            $values = $this->get('quartzguard_user', array());
-            $criteria = array();
-            foreach ($table->getPrimaryKeys() as $k)
-            {
-                $criteria[$k] = isset($values[$k]) ? $values[$k] : null;
-            }
+            $token = $this->get($this->getTokenName(), '?');
             
-            
+            $criteria = array(
+                sprintf("extra_infos->'token' = '%s'", $table->escape($token, 'string'))
+            );
             $res = $table->find($criteria, null, 1);
             $this->quartz_guard_user = $res->current();
         }
