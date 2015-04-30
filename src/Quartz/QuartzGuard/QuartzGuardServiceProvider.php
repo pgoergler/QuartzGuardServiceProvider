@@ -78,7 +78,7 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
                         $app['session']->start();
                     }
 
-                    if (!$app['session']->isAuthenticated())
+                    if (!$app['session']->isAuthenticated($request))
                     {
                         return $app->redirect(url_for('login'));
                     }
@@ -96,7 +96,7 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
                         $app['session']->start();
                     }
 
-                    if (!$app['session']->isAuthenticated())
+                    if (!$app['session']->isAuthenticated($request))
                     {
                         $app->abort(401, 'Must be authenticated');
                     }
@@ -115,7 +115,7 @@ class QuartzGuardServiceProvider extends \Silex\Provider\SessionServiceProvider
                     $app['session']->start();
                 }
                 
-                if (!$app['session']->isAuthenticated())
+                if (!$app['session']->isAuthenticated($request))
                 {
                     $app->abort(401, 'Must be authenticated');
                 }

@@ -14,6 +14,8 @@ class Session extends \Ongoo\Session\Session
     protected $quartz_guard_user = null;
     protected $quartz_guard_user_classname = null;
     protected $orm = null;
+    
+    private $salt = "AZRGESGZERT3A04TKQZE0Q23IR0QZI34RQ30I423940C303K0RK20230R";
 
     /**
      * __construct
@@ -115,9 +117,48 @@ class Session extends \Ongoo\Session\Session
      *
      * @return boolean
      * */
-    public function isAuthenticated()
+    public function isAuthenticated(\Symfony\Component\HttpFoundation\Request $request)
     {
-        return $this->has('quartzguard_is_authenticated') && ($this->getGuardUser() != null);
+        if( is_null($this->getGuardUser()) )
+        {
+            return false;
+        }
+        
+        if( !$this->has('quartzguard_is_authenticated'))
+        {
+            return false;
+        }
+        
+        if( !$this->get('quartzguard_is_authenticated', false))
+        {
+            return false;
+        }
+        
+        return $this->buildBrowserToken($request) === $this->getGuardUser()->getExtraVar('token_ua', '');
+    }
+    
+    public function buildBrowserToken(\Symfony\Component\HttpFoundation\Request $request)
+    {
+        $salt = $this->salt . $this->salt;
+        $token = '';
+        $token .= $salt . $request->getClientIp() . $salt;
+        $token .= $salt . implode(",", $request->getCharsets()) . $salt;
+        $token .= $salt . $request->headers->get('user-agent'). $salt;
+        $token .= $salt . $request->headers->get('accept-language'). $salt;
+        
+        return sha1($token);
+    }
+    
+    public function buildToken(\Apps\Secure\Models\SecureUser $user)
+    {
+        $salt = $this->salt;
+        $token = '';
+        foreach ($user->getTable()->getPrimaryKeys() as $k)
+        {
+            $token .= $salt . $k . "=" . $user->get($k) . $salt;
+        }
+        
+        return sha1($token);
     }
 
 }
