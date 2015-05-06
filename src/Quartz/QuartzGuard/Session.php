@@ -119,7 +119,7 @@ class Session extends \Ongoo\Session\Session
      * */
     public function isAuthenticated(\Symfony\Component\HttpFoundation\Request $request)
     {
-        if( is_null($this->getGuardUser()) )
+        if( !$this->getGuardUser() )
         {
             return false;
         }
@@ -162,5 +162,3 @@ class Session extends \Ongoo\Session\Session
     }
 
 }
-
-?>
